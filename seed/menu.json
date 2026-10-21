@@ -1,0 +1,677 @@
+{
+  "categories": [
+    {
+      "id": "pizzas",
+      "name": "Pizzas",
+      "color": "#FFC531"
+    },
+    {
+      "id": "burgers",
+      "name": "Burgers",
+      "color": "#FF7A59"
+    },
+    {
+      "id": "bowls",
+      "name": "Bowls",
+      "color": "#3FD1A0"
+    },
+    {
+      "id": "grills",
+      "name": "Grills",
+      "color": "#FFB48A"
+    },
+    {
+      "id": "pasta",
+      "name": "Pasta",
+      "color": "#C6E85A"
+    },
+    {
+      "id": "greens",
+      "name": "Greens & soup",
+      "color": "#5FD4D8"
+    },
+    {
+      "id": "sips",
+      "name": "Sips",
+      "color": "#8DBBFF"
+    },
+    {
+      "id": "sweet",
+      "name": "Sweet",
+      "color": "#FF9BCB"
+    }
+  ],
+  "items": [
+    {
+      "id": "p1",
+      "cat": "pizzas",
+      "name": "Margherita Burrata Bloom",
+      "price": 399,
+      "veg": true,
+      "desc": "San Marzano tomato, torn burrata, blistered cherry tomatoes and fresh basil.",
+      "ings": [
+        {
+          "e": "🍅",
+          "l": "Tomato"
+        },
+        {
+          "e": "🧀",
+          "l": "Burrata"
+        },
+        {
+          "e": "🍒",
+          "l": "Cherry tomato"
+        },
+        {
+          "e": "🌿",
+          "l": "Basil"
+        }
+      ],
+      "image": "file:margherita.webp",
+      "anim": "spin"
+    },
+    {
+      "id": "p2",
+      "cat": "pizzas",
+      "name": "Garden Veggie Supreme",
+      "price": 449,
+      "veg": true,
+      "desc": "Broccoli, bell peppers, red onion, mushroom and black olives on a crisp base.",
+      "ings": [
+        {
+          "e": "🥦",
+          "l": "Broccoli"
+        },
+        {
+          "e": "🫑",
+          "l": "Capsicum"
+        },
+        {
+          "e": "🧅",
+          "l": "Red onion"
+        },
+        {
+          "e": "🍄",
+          "l": "Mushroom"
+        },
+        {
+          "e": "🫒",
+          "l": "Olives"
+        },
+        {
+          "e": "🧀",
+          "l": "Mozzarella"
+        }
+      ],
+      "image": "file:veg_pizza.webp",
+      "anim": "spin"
+    },
+    {
+      "id": "b1",
+      "cat": "burgers",
+      "name": "Classic Smash Cheeseburger",
+      "price": 329,
+      "veg": false,
+      "desc": "Smashed chicken patty, cheddar, pickles, tomato and crunchy lettuce in a brioche bun.",
+      "ings": [
+        {
+          "e": "🍗",
+          "l": "Chicken patty"
+        },
+        {
+          "e": "🧀",
+          "l": "Cheddar"
+        },
+        {
+          "e": "🍅",
+          "l": "Tomato"
+        },
+        {
+          "e": "🧅",
+          "l": "Onion"
+        },
+        {
+          "e": "🥬",
+          "l": "Lettuce"
+        },
+        {
+          "e": "🥒",
+          "l": "Pickles"
+        }
+      ],
+      "image": "file:burger.webp",
+      "anim": "float"
+    },
+    {
+      "id": "w1",
+      "cat": "bowls",
+      "name": "Teriyaki Chicken Rice Bowl",
+      "price": 349,
+      "veg": false,
+      "desc": "Glazed chicken bites, steamed jasmine rice and garlicky broccoli.",
+      "ings": [
+        {
+          "e": "🍗",
+          "l": "Chicken"
+        },
+        {
+          "e": "🍚",
+          "l": "Jasmine rice"
+        },
+        {
+          "e": "🥦",
+          "l": "Broccoli"
+        },
+        {
+          "e": "🧄",
+          "l": "Garlic"
+        }
+      ],
+      "image": "file:chicken_rice_bowl.webp",
+      "anim": "spin"
+    },
+    {
+      "id": "w2",
+      "cat": "bowls",
+      "name": "Protein Buddha Bowl",
+      "price": 329,
+      "veg": true,
+      "desc": "Quinoa, chickpeas, purple slaw, cucumber, sprouts and cherry tomatoes.",
+      "ings": [
+        {
+          "e": "🌾",
+          "l": "Quinoa"
+        },
+        {
+          "e": "🫘",
+          "l": "Chickpeas"
+        },
+        {
+          "e": "🥬",
+          "l": "Slaw"
+        },
+        {
+          "e": "🥒",
+          "l": "Cucumber"
+        },
+        {
+          "e": "🥕",
+          "l": "Carrot"
+        },
+        {
+          "e": "🍅",
+          "l": "Tomato"
+        }
+      ],
+      "image": "file:buddha_bowl.webp",
+      "anim": "spin"
+    },
+    {
+      "id": "g1",
+      "cat": "grills",
+      "name": "Herb Chicken & Sweet Potato",
+      "price": 379,
+      "veg": false,
+      "desc": "Grilled herb chicken breast with roasted sweet potato and green beans.",
+      "ings": [
+        {
+          "e": "🍗",
+          "l": "Chicken"
+        },
+        {
+          "e": "🍠",
+          "l": "Sweet potato"
+        },
+        {
+          "e": "🫛",
+          "l": "Green beans"
+        },
+        {
+          "e": "🌿",
+          "l": "Herbs"
+        }
+      ],
+      "image": "file:chicken_sweet_potato.webp",
+      "anim": "spin"
+    },
+    {
+      "id": "g2",
+      "cat": "grills",
+      "name": "Lemon Butter Basa",
+      "price": 429,
+      "veg": false,
+      "desc": "Pan-seared basa in lemon butter with a bright vegetable toss.",
+      "ings": [
+        {
+          "e": "🐟",
+          "l": "Basa"
+        },
+        {
+          "e": "🍋",
+          "l": "Lemon"
+        },
+        {
+          "e": "🧈",
+          "l": "Butter"
+        },
+        {
+          "e": "🥦",
+          "l": "Broccoli"
+        },
+        {
+          "e": "🥕",
+          "l": "Carrot"
+        }
+      ],
+      "image": "file:fish_veg.webp",
+      "anim": "spin"
+    },
+    {
+      "id": "g3",
+      "cat": "grills",
+      "name": "Crumb-Fried Fish",
+      "price": 399,
+      "veg": false,
+      "desc": "Golden crumbed fish fillets with lemon wedges and parsley.",
+      "ings": [
+        {
+          "e": "🐟",
+          "l": "Fish"
+        },
+        {
+          "e": "🍞",
+          "l": "Crumb"
+        },
+        {
+          "e": "🍋",
+          "l": "Lemon"
+        },
+        {
+          "e": "🌿",
+          "l": "Parsley"
+        }
+      ],
+      "image": "file:fried_fish.webp",
+      "anim": "spin"
+    },
+    {
+      "id": "g4",
+      "cat": "grills",
+      "name": "Grilled Salmon Plate",
+      "price": 649,
+      "veg": false,
+      "desc": "Char-grilled salmon steak with steamed broccoli, cauliflower and carrots.",
+      "ings": [
+        {
+          "e": "🐟",
+          "l": "Salmon"
+        },
+        {
+          "e": "🥦",
+          "l": "Broccoli"
+        },
+        {
+          "e": "🤍",
+          "l": "Cauliflower"
+        },
+        {
+          "e": "🥕",
+          "l": "Carrot"
+        },
+        {
+          "e": "🍋",
+          "l": "Lemon"
+        }
+      ],
+      "image": "file:salmon.webp",
+      "anim": "spin"
+    },
+    {
+      "id": "g5",
+      "cat": "grills",
+      "name": "Peppercorn Steak",
+      "price": 699,
+      "veg": false,
+      "desc": "Tenderloin steak with charred asparagus and roasted vine tomatoes.",
+      "ings": [
+        {
+          "e": "🥩",
+          "l": "Tenderloin"
+        },
+        {
+          "e": "🌱",
+          "l": "Asparagus"
+        },
+        {
+          "e": "🍅",
+          "l": "Vine tomato"
+        },
+        {
+          "e": "🌿",
+          "l": "Rosemary"
+        }
+      ],
+      "image": "file:steak.webp",
+      "anim": "spin"
+    },
+    {
+      "id": "a1",
+      "cat": "pasta",
+      "name": "Basil Pesto Tagliatelle",
+      "price": 349,
+      "veg": true,
+      "desc": "Ribbon pasta tossed in basil, pine nut and parmesan pesto.",
+      "ings": [
+        {
+          "e": "🍝",
+          "l": "Tagliatelle"
+        },
+        {
+          "e": "🌿",
+          "l": "Basil"
+        },
+        {
+          "e": "🧄",
+          "l": "Garlic"
+        },
+        {
+          "e": "🧀",
+          "l": "Parmesan"
+        },
+        {
+          "e": "🥜",
+          "l": "Pine nuts"
+        }
+      ],
+      "image": "file:pesto_pasta.webp",
+      "anim": "spin"
+    },
+    {
+      "id": "a2",
+      "cat": "pasta",
+      "name": "Chicken Bolognese",
+      "price": 379,
+      "veg": false,
+      "desc": "Spaghetti under a slow-cooked chicken mince ragù and parsley.",
+      "ings": [
+        {
+          "e": "🍝",
+          "l": "Spaghetti"
+        },
+        {
+          "e": "🍗",
+          "l": "Chicken mince"
+        },
+        {
+          "e": "🍅",
+          "l": "Tomato"
+        },
+        {
+          "e": "🧅",
+          "l": "Onion"
+        }
+      ],
+      "image": "file:spaghetti.webp",
+      "anim": "spin"
+    },
+    {
+      "id": "r1",
+      "cat": "greens",
+      "name": "Greek Garden Salad",
+      "price": 279,
+      "veg": true,
+      "desc": "Crisp lettuce, feta, olives, cherry tomatoes and red onion.",
+      "ings": [
+        {
+          "e": "🥬",
+          "l": "Lettuce"
+        },
+        {
+          "e": "🧀",
+          "l": "Feta"
+        },
+        {
+          "e": "🫒",
+          "l": "Olives"
+        },
+        {
+          "e": "🍅",
+          "l": "Tomato"
+        },
+        {
+          "e": "🧅",
+          "l": "Onion"
+        }
+      ],
+      "image": "file:garden_salad.webp",
+      "anim": "spin"
+    },
+    {
+      "id": "r2",
+      "cat": "greens",
+      "name": "Roasted Veggie Medley",
+      "price": 299,
+      "veg": true,
+      "desc": "Charred peppers, mushrooms and tomato with herbs and olive oil.",
+      "ings": [
+        {
+          "e": "🫑",
+          "l": "Peppers"
+        },
+        {
+          "e": "🍄",
+          "l": "Mushroom"
+        },
+        {
+          "e": "🍅",
+          "l": "Tomato"
+        },
+        {
+          "e": "🌿",
+          "l": "Herbs"
+        }
+      ],
+      "image": "file:roast_veg.webp",
+      "anim": "spin"
+    },
+    {
+      "id": "r3",
+      "cat": "greens",
+      "name": "Tomato Basil Soup",
+      "price": 179,
+      "veg": true,
+      "desc": "Velvety roasted tomato soup with fresh basil.",
+      "ings": [
+        {
+          "e": "🍅",
+          "l": "Tomato"
+        },
+        {
+          "e": "🌿",
+          "l": "Basil"
+        },
+        {
+          "e": "🥛",
+          "l": "Cream"
+        },
+        {
+          "e": "🧄",
+          "l": "Garlic"
+        }
+      ],
+      "image": "file:tomato_soup.webp",
+      "anim": "none"
+    },
+    {
+      "id": "d1",
+      "cat": "sips",
+      "name": "Mango Lassi Lagoon",
+      "price": 149,
+      "veg": true,
+      "desc": "Thick Alphonso lassi with a hint of cardamom.",
+      "ings": [
+        {
+          "e": "🥭",
+          "l": "Alphonso mango"
+        },
+        {
+          "e": "🥛",
+          "l": "Curd"
+        },
+        {
+          "e": "🫛",
+          "l": "Cardamom"
+        }
+      ],
+      "image": "d:d1",
+      "anim": "float"
+    },
+    {
+      "id": "d2",
+      "cat": "sips",
+      "name": "Cold Coffee Cloud",
+      "price": 169,
+      "veg": true,
+      "desc": "Frothy cold coffee topped with a scoop of vanilla.",
+      "ings": [
+        {
+          "e": "☕",
+          "l": "Coffee"
+        },
+        {
+          "e": "🥛",
+          "l": "Milk"
+        },
+        {
+          "e": "🍨",
+          "l": "Ice cream"
+        }
+      ],
+      "image": "d:d2",
+      "anim": "float"
+    },
+    {
+      "id": "d3",
+      "cat": "sips",
+      "name": "Masala Lemonade",
+      "price": 99,
+      "veg": true,
+      "desc": "Fizzy nimbu soda with chaat masala and fresh mint.",
+      "ings": [
+        {
+          "e": "🍋",
+          "l": "Lemon"
+        },
+        {
+          "e": "🌿",
+          "l": "Mint"
+        },
+        {
+          "e": "🧂",
+          "l": "Chaat masala"
+        },
+        {
+          "e": "🫧",
+          "l": "Soda"
+        }
+      ],
+      "image": "d:d3",
+      "anim": "float"
+    },
+    {
+      "id": "d4",
+      "cat": "sips",
+      "name": "Berry Blast Cooler",
+      "price": 159,
+      "veg": true,
+      "desc": "Mixed berry cooler, very pink, very cold.",
+      "ings": [
+        {
+          "e": "🫐",
+          "l": "Berries"
+        },
+        {
+          "e": "🌿",
+          "l": "Mint"
+        },
+        {
+          "e": "🫧",
+          "l": "Soda"
+        }
+      ],
+      "image": "d:d4",
+      "anim": "float"
+    },
+    {
+      "id": "x1",
+      "cat": "sweet",
+      "name": "Choco Lava Volcano",
+      "price": 199,
+      "veg": true,
+      "desc": "Break it open. The middle runs.",
+      "ings": [
+        {
+          "e": "🍫",
+          "l": "Dark chocolate"
+        },
+        {
+          "e": "🧈",
+          "l": "Butter"
+        },
+        {
+          "e": "🍒",
+          "l": "Cherry"
+        }
+      ],
+      "image": "d:x1",
+      "anim": "float"
+    },
+    {
+      "id": "x2",
+      "cat": "sweet",
+      "name": "Triple Scoop Sundae",
+      "price": 219,
+      "veg": true,
+      "desc": "Vanilla, strawberry and chocolate with fudge and a cherry on top.",
+      "ings": [
+        {
+          "e": "🍦",
+          "l": "Vanilla"
+        },
+        {
+          "e": "🍓",
+          "l": "Strawberry"
+        },
+        {
+          "e": "🍫",
+          "l": "Chocolate"
+        },
+        {
+          "e": "🍒",
+          "l": "Cherry"
+        }
+      ],
+      "image": "d:x2",
+      "anim": "float"
+    }
+  ],
+  "offers": {
+    "gst": 5,
+    "free": {
+      "on": true,
+      "at": 1000,
+      "item": "d3"
+    },
+    "combo": {
+      "on": true,
+      "a": "burgers",
+      "b": "sips",
+      "off": 40
+    },
+    "big": {
+      "on": true,
+      "at": 2000,
+      "pct": 10
+    }
+  }
+}

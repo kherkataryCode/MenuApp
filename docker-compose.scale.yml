@@ -1,0 +1,44 @@
+# Option B — load-balanced: nginx → 3 app instances → PostgreSQL.
+# Live updates reach every instance through PostgreSQL LISTEN/NOTIFY.
+#   cp .env.example .env  (set APP_SECRET, PUBLIC_URL, ADMIN_BOOTSTRAP_PASSWORD, POSTGRES_PASSWORD)
+#   docker compose -f docker-compose.scale.yml up -d --build
+# TLS: put Cloudflare (proxied DNS, set TRUST_PROXY=2) in front, or enable the
+# HTTPS server block in deploy/nginx/nginx.conf with your certificates.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hungrymango
+      POSTGRES_USER: hm
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes: [pg-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hm -d hungrymango"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://hm:${POSTGRES_PASSWORD}@db:5432/hungrymango
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+      NODE_ENV: production
+      TZ: ${TZ:-Asia/Kolkata}
+    depends_on:
+      db: { condition: service_healthy }
+    deploy:
+      replicas: 3
+    expose: ["8080"]
+  lb:
+    image: nginx:1.27-alpine   # needs 1.27.3+ for upstream "resolve"
+    restart: unless-stopped
+    depends_on: [app]
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/nginx/certs:/etc/nginx/certs:ro
+volumes:
+  pg-data:

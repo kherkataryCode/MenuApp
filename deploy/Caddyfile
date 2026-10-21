@@ -1,0 +1,14 @@
+# Caddy gets and renews a free Let's Encrypt certificate automatically.
+{$DOMAIN} {
+	encode zstd gzip
+	header -Server
+	# Live updates (Server-Sent Events) must not be buffered.
+	@stream path /api/session/stream /api/admin/stream
+	reverse_proxy @stream app:8080 {
+		flush_interval -1
+		transport http {
+			read_timeout 0
+		}
+	}
+	reverse_proxy app:8080
+}

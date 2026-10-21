@@ -1,0 +1,16 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { priceBill, normOffers } from '../../web/js/shared/pricing.js';
+const M = { p1: { id: 'p1', name: 'Pizza', price: 349, cat: 'pizzas' }, p2: { id: 'p2', name: 'Big', price: 449, cat: 'pizzas' }, b1: { id: 'b1', name: 'Burger', price: 189, cat: 'burgers' }, d1: { id: 'd1', name: 'Lassi', price: 149, cat: 'sips' }, d3: { id: 'd3', name: 'Masala Lemonade', price: 99, cat: 'sips' }, y: { id: 'y', name: 'Y', price: 1000, cat: 'x' }, z: { id: 'z', name: 'Z', price: 999, cat: 'x' } };
+test('empty plate costs nothing', () => { const b = priceBill([], M); assert.equal(b.total, 0); assert.equal(b.nudge, null); });
+test('unknown items, negative and non-numeric quantities are ignored', () => assert.equal(priceBill([{ item: 'zz', qty: 3 }, { item: 'p1', qty: -2 }, { item: 'p1', qty: 'x' }], M).subtotal, 0));
+test('quantity is capped at 50 per line', () => assert.equal(priceBill([{ item: 'd3', qty: 1e6 }], M).subtotal, 4950));
+test('GST 5% is added and rounded', () => assert.equal(priceBill([{ item: 'p1', qty: 1 }], M).total, 366));
+test('free item threshold is inclusive (999 no, 1000 yes)', () => { assert.equal(priceBill([{ item: 'z', qty: 1 }], M).freebies.length, 0); assert.equal(priceBill([{ item: 'y', qty: 1 }], M).freebies[0].item, 'd3'); });
+test('combo counts pairs', () => { const b = priceBill([{ item: 'b1', qty: 2 }, { item: 'd1', qty: 1 }], M); assert.equal(b.combo, 40); assert.equal(b.taxable, 487); });
+test('big plate discount applies after combo', () => { const b = priceBill([{ item: 'p2', qty: 4 }, { item: 'b1', qty: 1 }, { item: 'd1', qty: 1 }], M); assert.equal(b.big, 209); assert.equal(b.total, 1979); });
+test('custom offers: GST 18%, big plate off', () => { const b = priceBill([{ item: 'p2', qty: 5 }], M, { gst: 18, big: { on: false } }); assert.equal(b.big, 0); assert.equal(b.gst, 404); });
+test('missing free item gives no freebie', () => assert.equal(priceBill([{ item: 'y', qty: 1 }], M, { free: { on: true, at: 500, item: 'nope' } }).freebies.length, 0));
+test('combo with the same category on both sides is disabled', () => assert.equal(priceBill([{ item: 'd1', qty: 4 }], M, { combo: { on: true, a: 'sips', b: 'sips', off: 40 } }).combo, 0));
+test('offer values are clamped to safe ranges', () => { const o = normOffers({ gst: 500, big: { on: true, pct: 500, at: -5 } }); assert.equal(o.gst, 28); assert.equal(o.big.pct, 90); assert.equal(o.big.at, 0); });
+test('nudge points at the next goal', () => { const b = priceBill([{ item: 'y', qty: 1 }, { item: 'p1', qty: 1 }], M); assert.equal(b.nudge.at, 2000); assert.equal(b.nudge.need, 651); });

@@ -1,0 +1,29 @@
+{
+  "name": "hungry-mango",
+  "version": "1.0.0",
+  "description": "QR table ordering for restaurants: 3D swipe menu, shared table plate, live kitchen/admin dashboard.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server/index.js",
+    "dev": "node --disable-warning=ExperimentalWarning --watch server/index.js",
+    "create-admin": "node --disable-warning=ExperimentalWarning server/cli/create-admin.js",
+    "seed": "node --disable-warning=ExperimentalWarning server/cli/seed.js",
+    "backup": "node --disable-warning=ExperimentalWarning server/cli/backup.js",
+    "test": "node --disable-warning=ExperimentalWarning --test \"tests/unit/*.test.js\" \"tests/integration/*.test.js\"",
+    "test:unit": "node --disable-warning=ExperimentalWarning --test \"tests/unit/*.test.js\"",
+    "test:integration": "node --disable-warning=ExperimentalWarning --test \"tests/integration/*.test.js\"",
+    "test:e2e": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 \"tests/e2e/*.test.js\"",
+    "test:load": "k6 run tests/load/guest-flow.k6.js",
+    "sqlite-to-postgres": "node --disable-warning=ExperimentalWarning server/cli/sqlite-to-postgres.js"
+  },
+  "optionalDependencies": {
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.2"
+  }
+}

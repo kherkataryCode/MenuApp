@@ -1,0 +1,32 @@
+# Option A — one server, SQLite, automatic HTTPS with Caddy.
+#   1. Point your domain's DNS A record at this server.
+#   2. cp .env.example .env  (fill APP_SECRET, PUBLIC_URL, ADMIN_BOOTSTRAP_PASSWORD)
+#   3. DOMAIN=menu.example.com docker compose up -d --build
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: sqlite:/app/data/hungry-mango.db
+      TRUST_PROXY: "1"
+      NODE_ENV: production
+      TZ: ${TZ:-Asia/Kolkata}
+    volumes:
+      - app-data:/app/data
+    expose: ["8080"]
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on: [app]
+    ports: ["80:80", "443:443", "443:443/udp"]
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN, e.g. DOMAIN=menu.example.com}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+volumes:
+  app-data:
+  caddy-data:
+  caddy-config:
