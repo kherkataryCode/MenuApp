@@ -53,12 +53,12 @@ function landing() {
 }
 function renderClosed() {
   S.view = 'closed'; const v = visualEl({ image: firstPhoto(), anim: 'float' }, 'big-vis');
-  screen('closed', v, h('h2', { class: 'display', text: `Table ${S.table} isn't open yet` }), h('p', { text: 'Your server opens the table when you sit down. This page checks again by itself.' }));
+  screen('closed', h('button', { class: 'screen-back', onclick: () => { clearInterval(S.poll); location.href = '/'; }, text: '← Back' }), v, h('h2', { class: 'display', text: `Table ${S.table} isn't open yet` }), h('p', { text: 'Your server opens the table when you sit down. This page checks again by itself.' }));
   clearInterval(S.poll); S.poll = setInterval(async () => { try { const st = await api('GET', `/api/tables/${S.table}/status`); if (st.open) { clearInterval(S.poll); renderJoin(); } } catch { } }, 8000);
 }
 const firstPhoto = () => (S.menu?.items.find(i => i.image.startsWith('/img/')) || {}).image || 'd:x1';
 function renderEnded() {
-  S.view = 'ended'; S.stream?.close(); S.stream = null; closeSheets();
+  S.view = 'ended'; S.stream?.close(); S.stream = null; clearInterval(S.livePoll); closeSheets();
   screen('ended', visualEl({ image: 'd:x1', anim: 'float' }, 'big-vis'), h('h2', { class: 'display', text: 'Thanks for eating with us' }),
     h('p', { text: `The session at table ${S.table} has closed, so this link can't place orders any more. Scan the table again on your next visit.` }),
     h('button', { class: 'btn-big', onclick: () => enterTable(), text: 'Done' }));
@@ -81,7 +81,7 @@ function renderJoin() {
     b.addEventListener('keydown', e => { if (e.key === 'Backspace' && !b.value && i) boxes[i - 1].focus(); });
     b.addEventListener('paste', e => { const d = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 4); if (d.length) { e.preventDefault(); d.split('').forEach((c, k) => boxes[k] && (boxes[k].value = c)); check(); } });
   });
-  screen('join', h('div', { class: 'join-badge', text: String(S.table) }), h('h2', { class: 'display', text: `Welcome to table ${S.table}` }),
+  screen('join', h('button', { class: 'screen-back', onclick: () => { location.href = '/'; }, text: '← Back' }), h('div', { class: 'join-badge', text: String(S.table) }), h('h2', { class: 'display', text: `Welcome to table ${S.table}` }),
     h('p', { text: 'Type the 4-digit code printed on the card at your table. It changes for every new group.' }), row, msg,
     h('p', { class: 'join-foot', text: "No account needed. You'll get a funny name, and your plate is shared with everyone at this table." }));
   setTimeout(() => boxes[0].focus(), 50);
@@ -102,7 +102,7 @@ function renderReveal(me) {
   };
   spin.onclick = async () => { try { S.snap = await api('POST', '/api/session/name', {}); roll(S.snap.me); } catch (e) { toast(errMsg(e), 'bad'); } };
   go.onclick = () => { renderMenu(); setTimeout(() => toast(`Everyone at table ${S.table} shares this plate.`), 500); };
-  screen('reveal', h('p', { class: 'rv-k', text: `Table ${S.table}, meet your alter ego` }), emo, nm,
+  screen('reveal', h('button', { class: 'screen-back', onclick: () => { location.href = '/'; }, text: '← Back' }), h('p', { class: 'rv-k', text: `Table ${S.table}, meet your alter ego` }), emo, nm,
     h('p', { text: 'This name shows up on the shared plate so your table knows who added what.' }), h('div', { class: 'rv-btns' }, spin, go));
   roll(me);
 }
@@ -117,11 +117,16 @@ function startStream() {
   S.stream = live('/api/session/stream', {
     plate: resync, guests: resync, orders: resync, resync,
     menu: debounce(async () => { await loadMenu(); if (S.view === 'menu') rebuildStage(); resync(); }, 200),
+    game: debounce(async () => { if (S.view === 'game') renderGame(); }, 120),
     closed: () => renderEnded(),
     fail: () => resync(),
   });
+  clearInterval(S.livePoll); S.livePoll = setInterval(() => { if (['menu','list','item','game','bill'].includes(S.view)) { resync(); if (S.view === 'game') renderGame(); } }, 5000);
 }
 function onSnap() {
+  if (S.view === 'list') return;
+  if (S.view === 'item') return;
+  if (S.view === 'bill') return renderBillPage();
   if (S.view !== 'menu') return;
   if (S.snap.me) { /* name may have changed */ }
   updatePlateBar(); updateWho(); updateOrdersBadge();
@@ -143,9 +148,11 @@ function renderMenu() {
     h('button', { class: 'nav next', 'aria-label': 'Next dish', onclick: () => snapTo(G.target + 1), html: '<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>' }));
   G.info = h('section', { class: 'info', 'aria-live': 'polite' });
   G.plateBtn = h('button', { class: 'platebar', onclick: () => openSheet('plate') });
+  G.listBtn = h('button', { class: 'top-link', onclick: renderListView, text: '☰ Menu list' });
+  G.gameBtn = h('button', { class: 'top-link', onclick: renderGame, text: '🎲 Play' });
   G.ordersBtn = h('button', { class: 'icon-btn', 'aria-label': 'Your orders', onclick: () => openSheet('orders'), html: '<svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6M9 16h3"/></svg>' });
   G.who = h('button', { class: 'who', onclick: () => openSheet('plate') });
-  app.append(G.bgWrap, h('header', { class: 'top' }, h('div', { class: 'logo', text: S.name }), h('div', { class: 'top-r' }, G.who, G.ordersBtn)),
+  app.append(G.bgWrap, h('header', { class: 'top' }, h('div', { class: 'logo', text: S.name }), h('div', { class: 'top-r' }, G.listBtn, G.gameBtn, G.who, G.ordersBtn)),
     G.tabsWrap, G.stage, G.info, G.plateBtn, h('div', { class: 'scrim', onclick: closeSheets }),
     G.sheetPlate = h('section', { class: 'sheet', 'aria-label': 'Your plate', role: 'dialog' }),
     G.sheetOrders = h('section', { class: 'sheet', 'aria-label': 'Your orders', role: 'dialog' }));
@@ -153,6 +160,70 @@ function renderMenu() {
   G.ro?.disconnect(); G.ro = new ResizeObserver(() => { measure(); layout(true); }); G.ro.observe(G.stage);
   updatePlateBar(); updateWho(); updateOrdersBadge();
 }
+// ---------- menu list, item details and table game ----------
+function pageHeader(title, back, actions = []) {
+  return h('header', { class: 'page-head' }, h('button', { class: 'back-btn', onclick: back, text: '← Back' }), h('h2', { class: 'display', text: title }), h('div', { class: 'page-actions' }, ...actions));
+}
+function renderListView() {
+  S.view = 'list'; closeSheets();
+  const content = h('div', { class: 'list-page-body' });
+  for (const c of S.menu.cats) {
+    const available = S.menu.items.filter(m => m.cat === c.id);
+    if (!available.length) continue;
+    content.append(h('h3', { class: 'list-category', style: `--cat:${c.color}`, text: c.name }));
+    for (const m of available) {
+      const ingredients = (m.ings || []).map(x => x.l).filter(Boolean).join(', ') || m.desc || 'Ask our team for ingredients.';
+      content.append(h('button', { class: 'menu-row', disabled: false, onclick: () => renderItemDetail(m.id) },
+        h('span', { class: 'menu-row-copy' }, h('b', { text: m.name }), h('small', { text: ingredients }), !m.available ? h('em', { text: 'Currently unavailable' }) : null),
+        h('strong', { class: 'menu-row-price', text: inr(m.price) }), h('span', { class: 'menu-row-arrow', text: '›' })));
+    }
+  }
+  app.replaceChildren(pageHeader('Full menu', renderMenu, [h('button', { class: 'top-link', onclick: renderGame, text: '🎲 Play' })]), content,
+    h('footer', { class: 'list-footer' }, h('button', { class: 'btn-ghost', onclick: () => { renderMenu(); openSheet('plate'); }, text: 'View plate' }), h('button', { class: 'btn-big', onclick: renderBillPage, text: 'Orders & bill' })));
+}
+function renderItemDetail(id) {
+  S.view = 'item'; G.detailId = id; const m = S.byId[id]; if (!m) return renderListView();
+  const photo = visualEl({ ...m, anim: 'float' }, 'detail-photo');
+  const add = h('button', { class: 'btn-big wide', disabled: !m.available, onclick: async () => { await addToPlate(m, 1); toast(`${m.name} added to the table plate.`); } }, m.available ? `Add to plate · ${inr(m.price)}` : 'Sold out today');
+  app.replaceChildren(pageHeader('Dish details', renderListView), h('div', { class: 'item-detail-page' }, photo,
+    h('div', { class: 'detail-meta' }, h('span', { class: 'vegmark ' + (m.veg ? 'veg' : 'nonveg'), 'aria-label': m.veg ? 'Vegetarian' : 'Non-vegetarian' }), h('span', { class: 'detail-price', text: inr(m.price) })),
+    h('h2', { class: 'display', text: m.name }), h('p', { class: 'detail-desc', text: m.desc || '' }),
+    h('h3', { text: 'Ingredients' }), h('p', { class: 'detail-ings', text: (m.ings || []).map(x => x.l).filter(Boolean).join(', ') || 'Ask our team for ingredient details.' }), add,
+    h('button', { class: 'btn-ghost wide', onclick: renderListView, text: '← Back to menu list' })));
+}
+async function renderGame() {
+  S.view = 'game'; closeSheets();
+  let state; try { state = await api('GET', '/api/session/game'); } catch (e) { return toast(errMsg(e), 'bad'); }
+  if (S.view !== 'game') return;
+  const total = state.counts[0] + state.counts[1];
+  const choices = state.question.map((q, i) => h('button', { class: 'would-card' + (state.mine === i ? ' picked' : ''), onclick: async () => { try { await api('POST', '/api/session/game/vote', { choice: i }); await renderGame(); } catch (e) { toast(errMsg(e), 'bad'); } } },
+    h('span', { class: 'would-label', text: i === 0 ? 'OPTION A' : 'OPTION B' }), h('b', { text: q }), h('span', { class: 'would-count', text: `${state.counts[i]} vote${state.counts[i] === 1 ? '' : 's'} · ${total ? Math.round(state.counts[i] / total * 100) : 0}%` }),
+    h('span', { class: 'would-bar' }, h('i', { style: `width:${total ? state.counts[i] / total * 100 : 0}%` }))));
+  app.replaceChildren(pageHeader('Would You Rather?', renderMenu, [h('button', { class: 'top-link', onclick: renderListView, text: '☰ Menu list' })]),
+    h('div', { class: 'game-page' }, h('p', { class: 'game-kicker', text: `TABLE ${S.table} · ROUND ${(state.index % state.total) + 1}` }),
+      h('h2', { class: 'display game-title', text: 'Pick your side!' }), h('p', { class: 'game-sub', text: 'Everyone at your table can vote from their own phone.' }),
+      h('div', { class: 'would-grid' }, ...choices), h('p', { class: 'game-votes', text: `${total} vote${total === 1 ? '' : 's'} from your table` }),
+      h('button', { class: 'btn-big wide', onclick: async () => { try { await api('POST', '/api/session/game/next', {}); await renderGame(); } catch (e) { toast(errMsg(e), 'bad'); } }, text: 'Next question →' }),
+      h('button', { class: 'btn-ghost wide', onclick: renderMenu, text: '← Back to ordering' })));
+}
+function renderBillPage() {
+  S.view = 'bill'; closeSheets();
+  const os = S.snap.orders.filter(o => !['rejected','settled'].includes(o.status));
+  const total = os.reduce((sum, o) => sum + o.bill.total, 0);
+  const allServed = os.length > 0 && os.every(o => o.status === 'served');
+  const lines = h('div', { class: 'bill-page-lines' });
+  for (const o of os) {
+    lines.append(h('section', { class: 'bill-order' }, h('div', { class: 'bill-order-head' }, h('b', { text: `Order · ${o.byEmoji || ''} ${o.by}` }), h('span', { class: 'status-pill ' + o.status, text: ({pending:'Waiting',cooking:'Cooking',ready:'Ready',served:'Served'})[o.status] || o.status })),
+      ...o.items.map(it => h('div', { class: 'bill-item' }, h('span', { text: `${it.qty} × ${it.name}${it.free ? ' (free)' : ''}` }), h('span', { text: it.free ? 'Free' : inr(it.price * it.qty) }))),
+      h('div', { class: 'bill-order-total' }, h('span', { text: 'Order total' }), h('b', { text: inr(o.bill.total) }))));
+  }
+  app.replaceChildren(pageHeader('Your table bill', renderMenu), h('div', { class: 'bill-page' },
+    h('p', { class: 'bill-status-note', text: allServed ? 'Everything has been served. Enjoy!' : 'This bill updates as your orders progress.' }),
+    lines, h('div', { class: 'bill-grand-total' }, h('span', { text: 'Total including taxes' }), h('strong', { text: inr(total) })),
+    h('button', { class: 'btn-big wide', onclick: async () => { try { await api('POST', '/api/session/call', { type: 'bill' }); toast('Your server has been asked to bring the bill.'); } catch (e) { toast(errMsg(e), 'bad'); } }, text: 'Ask staff for payment bill' }),
+    h('button', { class: 'btn-ghost wide', onclick: renderMenu, text: '← Back to menu' })));
+}
+
 function rebuildStage() {
   const keep = G.list?.[G.target]?.id;
   G.list = items(); G.cards = []; G.last = []; G.bgs = {};
@@ -316,7 +387,7 @@ function renderOrdersSheet() {
   const running = os.filter(o => o.status !== 'rejected').reduce((a, o) => a + o.bill.total, 0);
   const call = async type => { try { await api('POST', '/api/session/call', { type }); toast(type === 'bill' ? 'Your server is bringing the bill.' : 'Your server is on the way.'); } catch (e) { toast(errMsg(e), 'bad'); } };
   G.sheetOrders.replaceChildren(sheetHead('Your orders', `Running bill for table ${S.table}: ${inr(running)}`), body,
-    h('div', { class: 'sh-foot two' }, h('button', { class: 'btn-ghost', onclick: () => call('server'), text: 'Call server' }), h('button', { class: 'btn-big', onclick: () => call('bill'), text: 'Ask for the bill' })));
+    h('div', { class: 'sh-foot two' }, h('button', { class: 'btn-ghost', onclick: renderBillPage, text: 'View bill' }), h('button', { class: 'btn-big', onclick: () => call('bill'), text: 'Ask for bill' })));
 }
 // Exposed for tests: preview the bill the same way the server computes it.
 window.__previewBill = lines => priceBill(lines, S.byId, S.menu?.offers);

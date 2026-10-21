@@ -25,3 +25,10 @@ All notable changes to this project. Format: [Keep a Changelog](https://keepacha
 
 ## [0.1.0] — 2026-10-21 (hosted demo)
 - First demo: 3D swipe menu, shared plate, bill preview with offers, kitchen dashboard, join codes.
+
+## Unreleased — table games, menu list, service and bill UX
+- Added table-shared Would You Rather voting with live vote counts and round advancement. Game rounds/votes are in-memory demo state and reset on server restart or redeploy.
+- Added a category-grouped full menu list, ingredient descriptions, item detail/photo view, add-to-plate action, and back navigation.
+- Added customer-facing itemized bill view with order status and total, plus direct request for staff to bring the payment bill.
+- Added periodic guest/admin refresh fallbacks so order status changes recover if a live event is missed; admin status actions now confirm the selected transition.
+- Kept new screens on the existing Hungry Mango theme variables.

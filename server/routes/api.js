@@ -77,6 +77,9 @@ export function registerRoutes(r, ctx) {
     metrics.inc('orders_placed_total');
     sendJson(res, 201, { order, session: await svc.snapshot(g) });
   });
+  r.get('/api/session/game', async (req, res) => { const g = await guest(req); sendJson(res, 200, svc.gameSnapshot(g.session.id, g.guest.id)); });
+  r.post('/api/session/game/vote', async (req, res) => { guestWrite(req); const g = await guest(req); const b = check(v.obj({ choice: v.int({ min: 0, max: 1 }) }), await readJson(req)); sendJson(res, 200, svc.gameVote(g, b.choice)); });
+  r.post('/api/session/game/next', async (req, res) => { guestWrite(req); const g = await guest(req); sendJson(res, 200, svc.gameNext(g)); });
   r.post('/api/session/call', async (req, res) => {
     guestWrite(req); const g = await guest(req); limiter.hit(`call:${g.session.id}`, 4, 60_000);
     const b = check(v.obj({ type: v.oneOf(['server', 'bill']) }), await readJson(req));
@@ -89,7 +92,7 @@ export function registerRoutes(r, ctx) {
       if (e.topic === 'menu') s.send('menu');
       else if (e.session === current.session.id) {
         if (e.topic === 'closed') { s.send('closed'); s.end(); }
-        else if (['plate', 'guests', 'orders'].includes(e.topic)) s.send(e.topic);
+        else if (['plate', 'guests', 'orders', 'game'].includes(e.topic)) s.send(e.topic);
       }
     });
     s.send('hello', { table: g.table });

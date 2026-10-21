@@ -70,6 +70,8 @@ test('full guest flow: join, shared plate, server-side bill, order, kitchen stat
   assert.equal((await a.patch(`/api/admin/orders/${o.id}`, { status: 'ready' })).status, 200);
   const ov = (await a.get('/api/admin/overview')).data; const t2 = ov.tables.find(t => t.no === 2);
   assert.equal(t2.guests.length, 2); assert.equal(t2.bill, o.bill.total);
+  assert.equal((await a.patch(`/api/admin/orders/${o.id}`, { status: 'served' })).status, 200);
+  assert.equal((await g1.get('/api/session')).data.orders.find(x => x.id === o.id).status, 'served', 'customer snapshot exposes served state for the itemized bill');
   // call staff
   await g2.post('/api/session/call', { type: 'bill' }); assert.equal((await a.get('/api/admin/overview')).data.tables.find(t => t.no === 2).call.type, 'bill');
   // empty plate can't be ordered
@@ -84,6 +86,15 @@ test('full guest flow: join, shared plate, server-side bill, order, kitchen stat
   if (code2 !== code) assert.equal((await stale.post('/api/tables/2/join', { code })).status, 403);
   assert.equal((await g1.get('/api/session')).status, 410, 'old cookie does not carry into the new seating');
   const csv = await a.get('/api/admin/orders.csv'); assert.equal(csv.status, 200); assert.match(csv.data, /less spicy/);
+});
+
+test('table-scoped Would You Rather game shares votes and advances rounds', async () => {
+  const a = await admin(); const code = await openTable(a, 8); const g1 = await joinAs(8, code); const g2 = await joinAs(8, code);
+  const before = (await g1.get('/api/session/game')).data;
+  assert.equal(before.question.length, 2); assert.deepEqual(before.counts, [0, 0]); assert.equal(before.mine, null);
+  const vote = await g1.post('/api/session/game/vote', { choice: 1 }); assert.equal(vote.status, 200); assert.equal(vote.data.counts[1], 1); assert.equal(vote.data.mine, 1);
+  const seenByOther = (await g2.get('/api/session/game')).data; assert.equal(seenByOther.counts[1], 1); assert.equal(seenByOther.mine, null);
+  const next = await g2.post('/api/session/game/next', {}); assert.equal(next.status, 200); assert.equal(next.data.index, before.index + 1); assert.deepEqual(next.data.counts, [0, 0]);
 });
 
 test('prank protection: closed tables, rotated codes, brute force', async () => {

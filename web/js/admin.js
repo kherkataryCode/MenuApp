@@ -51,7 +51,7 @@ function start() {
       resync: () => refresh(), fail: () => { K.liveEl.textContent = 'Reconnecting'; K.liveEl.classList.add('off'); boot(); },
     });
     addEventListener('hashchange', () => start());
-    setInterval(() => K.tab === 'orders' && render(), 30000);
+    setInterval(() => K.tab === 'orders' && refreshFloor(), 5000);
   }
   refresh();
 }
@@ -108,7 +108,7 @@ function tableCard(t) {
       : [h('button', { class: 'k-btn primary', onclick: doIt('open', `Table ${n} is open`), text: 'Open table' }), h('button', { class: 'k-btn', onclick: () => showCard(n), text: 'QR' })]));
 }
 function orderCard(o) {
-  const set = status => async () => { if (await act(() => api('PATCH', `/api/admin/orders/${o.id}`, { status }))) refreshFloor(); };
+  const set = status => async () => { if (await act(() => api('PATCH', `/api/admin/orders/${o.id}`, { status }), `Order marked ${status}.`)) refreshFloor(); };
   const acts = { pending: [h('button', { class: 'k-btn', onclick: set('rejected'), text: 'Reject' }), h('button', { class: 'k-btn primary', onclick: set('cooking'), text: 'Accept' })], cooking: [h('button', { class: 'k-btn primary', onclick: set('ready'), text: 'Mark ready' })], ready: [h('button', { class: 'k-btn primary', onclick: set('served'), text: 'Mark served' })] }[o.status] || [];
   return h('article', { class: 'k-o' },
     h('div', { class: 'k-o-top' }, h('b', { class: 'k-o-t', text: `Table ${o.table}` }), h('span', { text: ago(o.createdAt) })),

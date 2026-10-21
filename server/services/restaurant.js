@@ -12,6 +12,27 @@ const startOfDay = (t = Date.now()) => { const d = new Date(t); d.setHours(0, 0,
 
 export function createRestaurant({ db, bus, cfg }) {
   const pub = evt => bus.publish(evt).catch(() => {});
+  // Lightweight table-scoped game state; deliberately ephemeral on the free SQLite demo.
+  const games = new Map();
+  const gameQuestions = [
+    ['Eat only pizza for a year 🍕', 'Eat only burgers for a year 🍔'],
+    ['Always get free dessert 🍰', 'Always get free starters 🥟'],
+    ['Give up fries forever 🍟', 'Give up ice cream forever 🍦'],
+    ['Only spicy food 🌶️', 'Only sweet food 🍫'],
+    ['Have a personal chef 👨‍🍳', 'Have a personal food critic ⭐'],
+    ['Unlimited biryani 🍛', 'Unlimited momos 🥟'],
+    ['Never wait for food ⚡', 'Every meal is free 💸'],
+    ['Breakfast for every meal 🥞', 'Dinner for every meal 🍜'],
+    ['Only eat with chopsticks 🥢', 'Only eat with a spoon 🥄'],
+    ['Share every snack 🤝', 'Never share your dessert 😈'],
+  ];
+  function gameSnapshot(sessionId, guestId) {
+    let g = games.get(sessionId); if (!g) { g = { index: 0, votes: {} }; games.set(sessionId, g); }
+    const q = gameQuestions[g.index % gameQuestions.length], votes = Object.values(g.votes);
+    return { index: g.index, total: gameQuestions.length, question: q, counts: [votes.filter(v => v === 0).length, votes.filter(v => v === 1).length], mine: g.votes[guestId] ?? null };
+  }
+  function gameVote(ctx, choice) { const g = games.get(ctx.session.id) || { index: 0, votes: {} }; games.set(ctx.session.id, g); g.votes[ctx.guest.id] = choice; pub({ topic: 'game', session: ctx.session.id, table: ctx.table }); return gameSnapshot(ctx.session.id, ctx.guest.id); }
+  function gameNext(ctx) { const g = games.get(ctx.session.id) || { index: 0, votes: {} }; g.index = (g.index + 1) % gameQuestions.length; g.votes = {}; games.set(ctx.session.id, g); pub({ topic: 'game', session: ctx.session.id, table: ctx.table }); return gameSnapshot(ctx.session.id, ctx.guest.id); }
   const audit = (actor, action, detail) => db.run('INSERT INTO audit_log (id, at, actor, action, detail) VALUES (?, ?, ?, ?, ?)', [rid(16), Date.now(), actor || 'system', action, typeof detail === 'string' ? detail : JSON.stringify(detail || {})]).catch(() => {});
 
   // ---------- menu ----------
@@ -280,6 +301,6 @@ export function createRestaurant({ db, bus, cfg }) {
     if (menuJson.offers) await saveOffers('seed', menuJson.offers);
   }
 
-  return { menu, pricingIndex, saveCategory, deleteCategory, saveItem, setAvailability, deleteItem, reorder, saveOffers, saveImage, getImage, ensureTables, tableStatus, openTable, rotateCode, closeTable, join, resolveGuest, rerollName, addToPlate, setLine, snapshot, placeOrder, setOrderStatus, callStaff, clearCall, overview, exportCsv, isMenuEmpty, seed, audit, ANIMS };
+  return { menu, pricingIndex, gameSnapshot, gameVote, gameNext, saveCategory, deleteCategory, saveItem, setAvailability, deleteItem, reorder, saveOffers, saveImage, getImage, ensureTables, tableStatus, openTable, rotateCode, closeTable, join, resolveGuest, rerollName, addToPlate, setLine, snapshot, placeOrder, setOrderStatus, callStaff, clearCall, overview, exportCsv, isMenuEmpty, seed, audit, ANIMS };
 }
 function safeJson(s, d) { try { return s == null ? d : JSON.parse(s); } catch { return d; } }
